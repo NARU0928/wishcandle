@@ -9,24 +9,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             console.log('Submitting wish:', wish);
-            const response = await fetch('/.netlify/functions/submitWish', {
+            const response = await fetch('https://script.google.com/macros/s/AKfycbzI6KrjaWG69BlPYvbNv6p9e2J5A4cVMezxuF2OELM6b0FBt2kpnNdkdhGleX-es8uy/exec', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'text/plain',
                 },
-                body: JSON.stringify({ wish })
+                body: JSON.stringify({
+                    wish: wish
+                })
             });
 
             if (response.ok) {
                 const result = await response.json();
-                console.log('Server response:', result);
                 if (result.success) {
                     console.log('Wish submitted successfully');
                     createCandle(wish);
                     wishInput.value = '';
                 }
             } else {
-                console.error('Server returned error:', response.status);
+                console.error('Failed to submit wish');
             }
         } catch (error) {
             console.error('Error:', error);
