@@ -2,7 +2,14 @@
   "name": "wishcandle",
   "version": "1.0.0",
   "description": "A wish candle application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "googleapis": "^92.0.0"
+    "googleapis": "^130.0.0"
   }
 }
