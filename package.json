@@ -1,0 +1,8 @@
+{
+  "name": "wishcandle",
+  "version": "1.0.0",
+  "description": "A wish candle application",
+  "dependencies": {
+    "googleapis": "^92.0.0"
+  }
+}
