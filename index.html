@@ -15,12 +15,12 @@
 
         <main>
             <section class="wish-form">
-                <form id="wishForm">
+                <form id="wishForm" onsubmit="return false;">
                     <div class="form-group">
                         <input type="text" id="wishInput" name="wish" required
                                placeholder="소원을 입력해주세요...">
                     </div>
-                    <button type="submit">촛불 켜기</button>
+                    <button type="submit" onclick="return false;">촛불 켜기</button>
                 </form>
             </section>
 

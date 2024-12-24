@@ -2,12 +2,44 @@
 const SPREADSHEET_ID = '1W5Y5DEVp-au3dpFcJ2CJwpwZce1O2-RVlYtJ40PEB_0'; // URL에서 찾을 수 있는 ID
 const API_KEY = 'AIzaSyC2B0af40pu7-xflPSuJQSDmre5WgvUh-Q';
 
-
 class WishManager {
     constructor() {
+        console.log('WishManager initialized');
         this.wishForm = document.getElementById('wishForm');
         this.wishInput = document.getElementById('wishInput');
+        
+        if (!this.wishForm || !this.wishInput) {
+            console.error('Form elements not found:', {
+                wishForm: this.wishForm,
+                wishInput: this.wishInput
+            });
+        }
+        
         this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        this.wishForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await this.submitWish();
+        });
+    }
+
+    async submitWish() {
+        const wish = this.wishInput.value.trim();
+        if (!wish) return;
+
+        try {
+            // Google Sheets API를 사용하여 데이터 추가
+            const response = await this.appendToSheet(wish);
+            if (response.ok) {
+                // 촛불 생성
+                createCandle(wish);
+                this.wishInput.value = '';
+            }
+        } catch (error) {
+            console.error('Error submitting wish:', error);
+        }
     }
 
     async appendToSheet(wish) {
@@ -16,27 +48,19 @@ class WishManager {
         
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
         
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    values: [[now, wish, id]]
-                })
-            });
-
-            if (!response.ok) {
-                console.error('Error response:', await response.text());
-                throw new Error('Network response was not ok');
-            }
-
-            return response;
-        } catch (error) {
-            console.error('Error in appendToSheet:', error);
-            throw error;
-        }
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                values: [[now, wish, id]]
+            })
+        });
     }
-    // ... 나머지 코드는 동일하게 유지
 }
+
+// 페이지 로드 시 WishManager 인스턴스 생성
+window.addEventListener('DOMContentLoaded', () => {
+    new WishManager();
+});
