@@ -9,26 +9,32 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    console.log('Function invoked');
     const { wish } = JSON.parse(event.body);
     
-    // Google Apps Script 웹앱 URL을 환경변수로 설정
-    const APPS_SCRIPT_URL = process.env.APPS_SCRIPT_URL;
+    // Google Sheets API v4 엔드포인트
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${process.env.SPREADSHEET_ID}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED&key=${process.env.GOOGLE_API_KEY}`;
     
-    // Google Apps Script로 요청 전달
-    const response = await fetch(APPS_SCRIPT_URL, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ wish })
+      body: JSON.stringify({
+        values: [[new Date().toISOString(), wish, Math.random().toString(36).substring(7)]]
+      })
     });
 
-    const data = await response.text();
-    console.log('Response from Apps Script:', data);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Failed to append data to sheet');
+    }
 
     return {
       statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         success: true,
         message: 'Wish added successfully'
@@ -41,8 +47,7 @@ exports.handler = async function(event, context) {
       statusCode: 500,
       body: JSON.stringify({
         success: false,
-        message: 'Failed to add wish',
-        error: error.message
+        message: error.message
       })
     };
   }
