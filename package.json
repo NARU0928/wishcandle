@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "googleapis": "^130.0.0"
+    "node-fetch": "^2.6.1"
   }
 }

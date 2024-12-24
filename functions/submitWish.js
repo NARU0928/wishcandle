@@ -1,7 +1,6 @@
-const { google } = require('googleapis');
-
 exports.handler = async function(event, context) {
-  console.log('Function started');  // 디버깅 로그 추가
+  // 로그 시작
+  console.log('Function invoked');
 
   if (event.httpMethod !== 'POST') {
     return {
@@ -11,34 +10,40 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    console.log('Request body:', event.body);  // 요청 데이터 로깅
+    // 요청 바디 파싱
     const { wish } = JSON.parse(event.body);
-    
-    // 환경 변수 확인
+    console.log('Received wish:', wish);
+
+    // 환경변수 확인
     console.log('Checking environment variables');
-    if (!process.env.SPREADSHEET_ID || !process.env.GOOGLE_API_KEY) {
-      throw new Error('Required environment variables are missing');
+    const spreadsheetId = process.env.SPREADSHEET_ID;
+    const apiKey = process.env.GOOGLE_API_KEY;
+
+    if (!spreadsheetId || !apiKey) {
+      throw new Error('Missing required environment variables');
     }
 
-    // Google Sheets API 초기화
-    console.log('Initializing Google Sheets API');
-    const sheets = google.sheets({ 
-      version: 'v4',
-      auth: process.env.GOOGLE_API_KEY
-    });
+    // Google Sheets API 엔드포인트 직접 호출
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED&key=${apiKey}`;
     
-    console.log('Preparing to append data');
-    // 스프레드시트에 데이터 추가
-    const response = await sheets.spreadsheets.values.append({
-      spreadsheetId: process.env.SPREADSHEET_ID,
-      range: 'Sheet1!A:C',
-      valueInputOption: 'USER_ENTERED',
-      requestBody: {
-        values: [[new Date().toISOString(), wish, Math.random().toString(36).substring(7)]]
-      }
+    console.log('Sending request to Google Sheets API');
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        values: [[new Date().toISOString(), wish, Math.random().toString(36).substr(2, 9)]]
+      })
     });
 
-    console.log('Data appended successfully');
+    const data = await response.json();
+    console.log('Google Sheets API response:', data);
+
+    if (!response.ok) {
+      throw new Error(`Google Sheets API error: ${data.error?.message || 'Unknown error'}`);
+    }
+
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -48,7 +53,7 @@ exports.handler = async function(event, context) {
     };
 
   } catch (error) {
-    console.error('Function error:', error);  // 에러 상세 로깅
+    console.error('Function error:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({
