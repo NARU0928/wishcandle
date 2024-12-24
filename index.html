@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WishCandle - 소원을 비는 곳</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>WishCandle</h1>
+            <p>당신의 소원을 촛불에 담아보세요</p>
+        </header>
+
+        <main>
+            <section class="wish-form">
+                <form id="wishForm">
+                    <div class="form-group">
+                        <input type="text" id="wishInput" name="wish" required
+                               placeholder="소원을 입력해주세요...">
+                    </div>
+                    <button type="submit">촛불 켜기</button>
+                </form>
+            </section>
+
+            <section class="candles-container" id="candlesContainer">
+                <!-- 여기에 촛불들이 동적으로 추가됩니다 -->
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 WishCandle. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="js/candle.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
