@@ -9,8 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             console.log('Submitting wish:', wish);
-            const response = await fetch('https://script.google.com/macros/s/AKfycbzI6KrjaWG69BlPYvbNv6p9e2J5A4cVMezxuF2OELM6b0FBt2kpnNdkdhGleX-es8uy/exec', {
+            const response = await fetch('https://script.google.com/macros/s/AKfycbzb8vAIj_H_azlf1CVFMrPS58t-0ZYAeUP71gV2O_3u6G3kU4z3jtZXvOCow07hprz5/exec', {
                 method: 'POST',
+                mode: 'cors',
                 headers: {
                     'Content-Type': 'text/plain',
                 },
