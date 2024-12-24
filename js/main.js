@@ -1,6 +1,6 @@
 // Google Sheets API 설정
 const SPREADSHEET_ID = '1W5Y5DEVp-au3dpFcJ2CJwpwZce1O2-RVlYtJ40PEB_0'; // URL에서 찾을 수 있는 ID
-const API_KEY = 'AIzaSyC2B0af40pu7-xflPSuJQSDmre5WgvUh-Q';
+const API_KEY = 'AIzaSyDQmZgyYEe6LLIddmJZMOKjwmmkF5nuzac';
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM fully loaded');
