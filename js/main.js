@@ -2,34 +2,23 @@
 const SPREADSHEET_ID = '1W5Y5DEVp-au3dpFcJ2CJwpwZce1O2-RVlYtJ40PEB_0'; // URL에서 찾을 수 있는 ID
 const API_KEY = 'AIzaSyC2B0af40pu7-xflPSuJQSDmre5WgvUh-Q';
 
-class WishManager {
-    constructor() {
-        console.log('WishManager initialized');
-        this.wishForm = document.getElementById('wishForm');
-        this.wishInput = document.getElementById('wishInput');
-        
-        if (!this.wishForm || !this.wishInput) {
-            console.error('Form elements not found:', {
-                wishForm: this.wishForm,
-                wishInput: this.wishInput
-            });
-        }
-        
-        this.setupEventListeners();
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM fully loaded');
+    const submitButton = document.getElementById('submitWish');
+    const wishInput = document.getElementById('wishInput');
 
-    setupEventListeners() {
-        console.log('Setting up event listeners');
-        this.wishForm.addEventListener('submit', async (e) => {
-            e.preventDefault();  // 폼 기본 동작 중지
-            console.log('Form submitted');
-            await this.submitWish();
+    if (!submitButton || !wishInput) {
+        console.error('Required elements not found:', {
+            submitButton: !!submitButton,
+            wishInput: !!wishInput
         });
+        return;
     }
 
-    async submitWish() {
-        console.log('Submitting wish...');
-        const wish = this.wishInput.value.trim();
+    submitButton.addEventListener('click', async () => {
+        console.log('Submit button clicked');
+        const wish = wishInput.value.trim();
+        
         if (!wish) {
             console.log('Empty wish, returning');
             return;
@@ -37,37 +26,35 @@ class WishManager {
 
         try {
             console.log('Attempting to submit wish:', wish);
-            // Google Sheets API를 사용하여 데이터 추가
-            const response = await this.appendToSheet(wish);
+            const response = await appendToSheet(wish);
+            
             if (response.ok) {
-                // 촛불 생성
+                console.log('Wish submitted successfully');
                 createCandle(wish);
-                this.wishInput.value = '';
+                wishInput.value = '';
+            } else {
+                console.error('Failed to submit wish:', response);
             }
         } catch (error) {
             console.error('Error submitting wish:', error);
         }
-    }
-
-    async appendToSheet(wish) {
-        const now = new Date().toISOString();
-        const id = Math.random().toString(36).substr(2, 9);
-        
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
-        
-        return fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                values: [[now, wish, id]]
-            })
-        });
-    }
-}
-
-// 페이지 로드 시 WishManager 인스턴스 생성
-window.addEventListener('DOMContentLoaded', () => {
-    new WishManager();
+    });
 });
+
+async function appendToSheet(wish) {
+    console.log('Appending to sheet:', wish);
+    const now = new Date().toISOString();
+    const id = Math.random().toString(36).substr(2, 9);
+    
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+    
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            values: [[now, wish, id]]
+        })
+    });
+}
