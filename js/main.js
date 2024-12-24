@@ -19,17 +19,24 @@ class WishManager {
     }
 
     setupEventListeners() {
+        console.log('Setting up event listeners');
         this.wishForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            e.preventDefault();  // 폼 기본 동작 중지
+            console.log('Form submitted');
             await this.submitWish();
         });
     }
 
     async submitWish() {
+        console.log('Submitting wish...');
         const wish = this.wishInput.value.trim();
-        if (!wish) return;
+        if (!wish) {
+            console.log('Empty wish, returning');
+            return;
+        }
 
         try {
+            console.log('Attempting to submit wish:', wish);
             // Google Sheets API를 사용하여 데이터 추가
             const response = await this.appendToSheet(wish);
             if (response.ok) {
