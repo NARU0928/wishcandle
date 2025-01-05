@@ -4,6 +4,6 @@
   "description": "A wish candle application",
   "main": "index.js",
   "dependencies": {
-    "node-fetch": "^2.6.1"
+    "googleapis": "^128.0.0"
   }
 }

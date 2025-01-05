@@ -1,40 +1,37 @@
-const fetch = require('node-fetch');
+const { google } = require('googleapis');
 
 exports.handler = async function(event, context) {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ message: 'Method Not Allowed' })
-    };
+    return { statusCode: 405, body: JSON.stringify({ message: 'Method Not Allowed' }) };
   }
 
   try {
-    const { wish } = JSON.parse(event.body);
+    // 서비스 계정 인증 정보 파싱
+    const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
     
-    // Google Sheets API v4 엔드포인트
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${process.env.SPREADSHEET_ID}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED&key=${process.env.GOOGLE_API_KEY}`;
-    
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        values: [[new Date().toISOString(), wish, Math.random().toString(36).substring(7)]]
-      })
+    // JWT 클라이언트 생성
+    const auth = new google.auth.GoogleAuth({
+      credentials,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets']
     });
 
-    const data = await response.json();
+    const sheets = google.sheets({ version: 'v4', auth });
     
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to append data to sheet');
-    }
+    // 요청 데이터 파싱
+    const { wish } = JSON.parse(event.body);
+    
+    // 스프레드시트에 데이터 추가
+    const response = await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.SPREADSHEET_ID,
+      range: 'Sheet1!A:C',
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [[new Date().toISOString(), wish, Math.random().toString(36).substring(7)]]
+      }
+    });
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json'
-      },
       body: JSON.stringify({
         success: true,
         message: 'Wish added successfully'
