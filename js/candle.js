@@ -1,3 +1,5 @@
+let existingCandles = [];
+
 function createCandle(wish) {
     const candlesContainer = document.getElementById('candlesContainer');
     const candle = document.createElement('div');
@@ -13,14 +15,20 @@ function createCandle(wish) {
         <div class="wish-text">${wish}</div>
     `;
 
-    // 랜덤 위치 설정
-    const x = Math.random() * (candlesContainer.offsetWidth - 100);
-    const y = Math.random() * (candlesContainer.offsetHeight - 150);
+    // 새로운 위치 찾기
+    const position = findSafePosition(candlesContainer);
     
-    candle.style.left = `${x}px`;
-    candle.style.top = `${y}px`;
+    candle.style.left = `${position.x}px`;
+    candle.style.top = `${position.y}px`;
     
     candlesContainer.appendChild(candle);
+    existingCandles.push({
+        element: candle,
+        x: position.x,
+        y: position.y,
+        width: candle.offsetWidth,
+        height: candle.offsetHeight
+    });
 
     // CSS 애니메이션을 위한 스타일 추가
     const styles = document.createElement('style');
@@ -30,6 +38,7 @@ function createCandle(wish) {
             width: 50px;
             text-align: center;
             animation: float 6s ease-in-out infinite;
+            z-index: 1;
         }
 
         .flame {
@@ -40,6 +49,7 @@ function createCandle(wish) {
             margin: 0 auto;
             position: relative;
             animation: flicker 1s ease-in-out infinite;
+            z-index: 2;
         }
 
         .flame-inner {
@@ -51,6 +61,7 @@ function createCandle(wish) {
             position: absolute;
             top: 4px;
             left: 4px;
+            z-index: 3;
         }
 
         .wick {
@@ -72,9 +83,13 @@ function createCandle(wish) {
             color: #fff;
             font-size: 12px;
             margin-top: 10px;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 5px;
             max-width: 150px;
             word-wrap: break-word;
+            z-index: 2;
         }
 
         @keyframes float {
@@ -89,4 +104,37 @@ function createCandle(wish) {
     `;
 
     document.head.appendChild(styles);
+}
+
+function findSafePosition(container) {
+    const padding = 20;
+    const candleWidth = 150;  // 촛불과 텍스트의 최대 너비
+    const candleHeight = 120; // 촛불과 텍스트의 최대 높이
+    
+    const maxTries = 100;
+    let tries = 0;
+    
+    while (tries < maxTries) {
+        const x = padding + Math.random() * (container.offsetWidth - candleWidth - padding * 2);
+        const y = padding + Math.random() * (container.offsetHeight - candleHeight - padding * 2);
+        
+        if (isPositionSafe(x, y, candleWidth, candleHeight)) {
+            return { x, y };
+        }
+        tries++;
+    }
+    
+    // 안전한 위치를 찾지 못한 경우 격자 방식으로 배치
+    const gridX = (existingCandles.length % 5) * (candleWidth + padding);
+    const gridY = Math.floor(existingCandles.length / 5) * (candleHeight + padding);
+    
+    return { x: gridX + padding, y: gridY + padding };
+}
+
+function isPositionSafe(x, y, width, height) {
+    return existingCandles.every(candle => {
+        const horizontalDistance = Math.abs(x - candle.x);
+        const verticalDistance = Math.abs(y - candle.y);
+        return horizontalDistance > width || verticalDistance > height;
+    });
 }
