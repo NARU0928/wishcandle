@@ -85,4 +85,24 @@ footer {
     color: #666;
 }
 
-/* 촛불 스타일은 나중에 추가될 예정입니다 */
+.alert-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    background-color: rgba(255, 87, 87, 0.95);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    opacity: 0;
+    transition: all 0.5s ease;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.alert-message.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
