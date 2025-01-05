@@ -1,11 +1,21 @@
 let existingCandles = [];
+const CANDLE_LIMIT = 15; // 화면당 최대 촛불 수
 
 function findSafePosition(container) {
     const isMobile = window.innerWidth <= 768;
-    const padding = isMobile ? 10 : 20;
-    const candleWidth = isMobile ? 100 : 150;    // 모바일에서는 더 작게
-    const candleHeight = isMobile ? 90 : 120;    // 모바일에서는 더 작게
+    const padding = isMobile ? 15 : 30;
+    const candleWidth = isMobile ? 100 : 150;
+    const candleHeight = isMobile ? 130 : 160;
     
+    // 모바일일 경우 세로 방향으로만 배치
+    if (isMobile) {
+        const y = existingCandles.length > 0 
+            ? Math.max(...existingCandles.map(c => c.y)) + candleHeight + padding
+            : padding;
+        return { x: container.offsetWidth / 2 - candleWidth / 2, y };
+    }
+
+    // 데스크톱에서는 랜덤 위치 시도
     const maxTries = 100;
     let tries = 0;
     
@@ -19,8 +29,8 @@ function findSafePosition(container) {
         tries++;
     }
     
-    // 격자 방식으로 배치할 때 모바일 환경 고려
-    const columns = isMobile ? 3 : 5;  // 모바일에서는 열 수를 줄임
+    // 안전한 위치를 찾지 못한 경우 격자 배치
+    const columns = 4;
     const gridX = (existingCandles.length % columns) * (candleWidth + padding);
     const gridY = Math.floor(existingCandles.length / columns) * (candleHeight + padding);
     
@@ -31,12 +41,59 @@ function isPositionSafe(x, y, width, height) {
     return existingCandles.every(candle => {
         const horizontalDistance = Math.abs(x - candle.x);
         const verticalDistance = Math.abs(y - candle.y);
-        return horizontalDistance > width || verticalDistance > height;
+        return horizontalDistance > width * 0.8 || verticalDistance > height * 0.8;
     });
+}
+
+function createClearButton() {
+    if (!document.getElementById('clearCandles')) {
+        const button = document.createElement('button');
+        button.id = 'clearCandles';
+        button.className = 'clear-candles-btn';
+        button.textContent = '촛불 끄기';
+        button.onclick = clearCandles;
+        document.querySelector('.container').appendChild(button);
+
+        // 버튼 스타일 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            .clear-candles-btn {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 10px 20px;
+                background-color: rgba(255, 87, 87, 0.8);
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                z-index: 1000;
+            }
+            .clear-candles-btn:hover {
+                background-color: rgba(255, 87, 87, 1);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+function clearCandles() {
+    const container = document.getElementById('candlesContainer');
+    container.innerHTML = '';
+    existingCandles = [];
+    document.getElementById('clearCandles')?.remove();
 }
 
 function createCandle(wish) {
     const candlesContainer = document.getElementById('candlesContainer');
+    
+    // 촛불 개수 제한 확인
+    if (existingCandles.length >= CANDLE_LIMIT) {
+        createClearButton();
+    }
+
     const candle = document.createElement('div');
     candle.className = 'candle';
     
@@ -51,7 +108,7 @@ function createCandle(wish) {
         <div class="wish-text">${wish}</div>
     `;
 
-    // 랜덤 위치 설정
+    // 위치 설정
     const position = findSafePosition(candlesContainer);
     candle.style.left = `${position.x}px`;
     candle.style.top = `${position.y}px`;
@@ -64,6 +121,12 @@ function createCandle(wish) {
         width: candle.offsetWidth,
         height: candle.offsetHeight
     });
+
+    // 컨테이너 높이 조정 (모바일)
+    if (window.innerWidth <= 768) {
+        const maxY = Math.max(...existingCandles.map(c => c.y + c.height));
+        candlesContainer.style.minHeight = `${maxY + 50}px`;
+    }
 
     // CSS 애니메이션 스타일 추가
     const styles = document.createElement('style');
