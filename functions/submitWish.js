@@ -23,12 +23,14 @@ exports.handler = async function(event, context) {
     // 스프레드시트에 데이터 추가
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: 'Sheet1!A:C',
+      range: '시트1!A2:C',  // 시트 이름을 '시트1'로 변경하고, 헤더 다음 행부터 시작
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [[new Date().toISOString(), wish, Math.random().toString(36).substring(7)]]
       }
     });
+
+    console.log('Spreadsheet response:', response.data);  // 응답 로깅 추가
 
     return {
       statusCode: 200,
