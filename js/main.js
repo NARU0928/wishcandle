@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 기존 소원들 불러오기
     await loadExistingWishes();
 
-    // 비속어 필터링을 위한 정규식 패턴
-    const badWordsPattern = [
+    // 비속어 필터링을 위한 패턴
+    const badWords = [
         // 일반적인 비속어
         '시발', '씨발', 'ㅅㅂ', '좆', 'ㅈ같', '지랄', 'ㅈㄹ', '병신', 'ㅂㅅ', '미친',
         // 신체 비하
@@ -19,16 +19,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 변형된 표현
         '시1발', '씨1발', 'tl발', 'tlqkf', '느금', '늑그', '느그', '보징', '시bal', '시팔',
         // 비하성 은어
-        '한남', '한녀', '崔x', '문x', '급식충', '틀딱', '냄저', '벌레',
-        // 특수문자 변형
-        '시*', 'ㅆ*', '*발', 'ㅁㅊ'
-    ].map(word => 
-        new RegExp(word.split('').join('[\\s\\*\\.]*'), 'i')
-    );
+        '한남', '한녀', '틀딱', '냄저', '벌레'
+    ];
 
     // 비속어 감지 함수
     function containsBadWords(text) {
-        return badWordsPattern.some(pattern => pattern.test(text));
+        return badWords.some(word => text.toLowerCase().includes(word.toLowerCase()));
     }
 
     // 알림 메시지 표시 함수
