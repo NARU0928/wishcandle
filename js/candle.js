@@ -1,9 +1,10 @@
 let existingCandles = [];
 
 function findSafePosition(container) {
-    const padding = 20;
-    const candleWidth = 150;  // 촛불과 텍스트의 최대 너비
-    const candleHeight = 120; // 촛불과 텍스트의 최대 높이
+    const isMobile = window.innerWidth <= 768;
+    const padding = isMobile ? 10 : 20;
+    const candleWidth = isMobile ? 100 : 150;    // 모바일에서는 더 작게
+    const candleHeight = isMobile ? 90 : 120;    // 모바일에서는 더 작게
     
     const maxTries = 100;
     let tries = 0;
@@ -18,9 +19,10 @@ function findSafePosition(container) {
         tries++;
     }
     
-    // 안전한 위치를 찾지 못한 경우 격자 방식으로 배치
-    const gridX = (existingCandles.length % 5) * (candleWidth + padding);
-    const gridY = Math.floor(existingCandles.length / 5) * (candleHeight + padding);
+    // 격자 방식으로 배치할 때 모바일 환경 고려
+    const columns = isMobile ? 3 : 5;  // 모바일에서는 열 수를 줄임
+    const gridX = (existingCandles.length % columns) * (candleWidth + padding);
+    const gridY = Math.floor(existingCandles.length / columns) * (candleHeight + padding);
     
     return { x: gridX + padding, y: gridY + padding };
 }

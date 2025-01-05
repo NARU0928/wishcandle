@@ -106,3 +106,60 @@ footer {
     transform: translateX(-50%) translateY(0);
     opacity: 1;
 }
+
+/* 기존 스타일 맨 아래에 추가 */
+
+/* 모바일 환경을 위한 반응형 스타일 */
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 10px;
+        width: 100%;
+        overflow-x: hidden;  /* 가로 스크롤 방지 */
+    }
+
+    .candles-container {
+        min-height: 70vh;  /* 화면 높이의 70%로 설정 */
+        width: 100vw;      /* 화면 너비에 맞춤 */
+        position: relative;
+        overflow: hidden;   /* 촛불이 영역을 벗어나지 않도록 */
+    }
+
+    .wish-form {
+        width: 90%;        /* 폼 너비 조정 */
+        padding: 15px;
+    }
+
+    .wish-text {
+        font-size: 11px;   /* 텍스트 크기 조정 */
+        max-width: 120px;  /* 텍스트 최대 너비 조정 */
+    }
+
+    /* 촛불 크기 조정 */
+    .candle {
+        transform: scale(0.8);  /* 촛불 전체 크기를 80%로 축소 */
+    }
+
+    /* 헤더 텍스트 크기 조정 */
+    header h1 {
+        font-size: 2em;
+    }
+
+    header p {
+        font-size: 1em;
+    }
+}
+
+/* 더 작은 화면을 위한 추가 조정 */
+@media screen and (max-width: 480px) {
+    .candle {
+        transform: scale(0.7);  /* 촛불 크기를 더 작게 */
+    }
+
+    .wish-form {
+        width: 95%;
+    }
+
+    .header h1 {
+        font-size: 1.8em;
+    }
+}
