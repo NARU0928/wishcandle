@@ -1,3 +1,38 @@
+let existingCandles = [];
+
+function findSafePosition(container) {
+    const padding = 20;
+    const candleWidth = 150;  // 촛불과 텍스트의 최대 너비
+    const candleHeight = 120; // 촛불과 텍스트의 최대 높이
+    
+    const maxTries = 100;
+    let tries = 0;
+    
+    while (tries < maxTries) {
+        const x = padding + Math.random() * (container.offsetWidth - candleWidth - padding * 2);
+        const y = padding + Math.random() * (container.offsetHeight - candleHeight - padding * 2);
+        
+        if (isPositionSafe(x, y, candleWidth, candleHeight)) {
+            return { x, y };
+        }
+        tries++;
+    }
+    
+    // 안전한 위치를 찾지 못한 경우 격자 방식으로 배치
+    const gridX = (existingCandles.length % 5) * (candleWidth + padding);
+    const gridY = Math.floor(existingCandles.length / 5) * (candleHeight + padding);
+    
+    return { x: gridX + padding, y: gridY + padding };
+}
+
+function isPositionSafe(x, y, width, height) {
+    return existingCandles.every(candle => {
+        const horizontalDistance = Math.abs(x - candle.x);
+        const verticalDistance = Math.abs(y - candle.y);
+        return horizontalDistance > width || verticalDistance > height;
+    });
+}
+
 function createCandle(wish) {
     const candlesContainer = document.getElementById('candlesContainer');
     const candle = document.createElement('div');
