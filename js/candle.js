@@ -1,5 +1,3 @@
-let existingCandles = [];
-
 function createCandle(wish) {
     const candlesContainer = document.getElementById('candlesContainer');
     const candle = document.createElement('div');
@@ -7,6 +5,7 @@ function createCandle(wish) {
     
     // 촛불 HTML 구조 생성
     candle.innerHTML = `
+        <div class="glow"></div>
         <div class="flame">
             <div class="flame-inner"></div>
         </div>
@@ -15,9 +14,8 @@ function createCandle(wish) {
         <div class="wish-text">${wish}</div>
     `;
 
-    // 새로운 위치 찾기
+    // 랜덤 위치 설정
     const position = findSafePosition(candlesContainer);
-    
     candle.style.left = `${position.x}px`;
     candle.style.top = `${position.y}px`;
     
@@ -30,7 +28,7 @@ function createCandle(wish) {
         height: candle.offsetHeight
     });
 
-    // CSS 애니메이션을 위한 스타일 추가
+    // CSS 애니메이션 스타일 추가
     const styles = document.createElement('style');
     styles.textContent = `
         .candle {
@@ -39,6 +37,23 @@ function createCandle(wish) {
             text-align: center;
             animation: float 6s ease-in-out infinite;
             z-index: 1;
+        }
+
+        .glow {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at center,
+                rgba(255, 200, 0, 0.4) 0%,
+                rgba(255, 160, 0, 0.2) 45%,
+                rgba(255, 120, 0, 0) 100%);
+            border-radius: 50%;
+            animation: glowing 2s ease-in-out infinite;
+            filter: blur(5px);
+            z-index: 0;
         }
 
         .flame {
@@ -50,6 +65,9 @@ function createCandle(wish) {
             position: relative;
             animation: flicker 1s ease-in-out infinite;
             z-index: 2;
+            box-shadow: 0 0 20px #ff9800,
+                       0 0 40px #ff9800,
+                       0 0 60px rgba(255, 152, 0, 0.3);
         }
 
         .flame-inner {
@@ -62,6 +80,8 @@ function createCandle(wish) {
             top: 4px;
             left: 4px;
             z-index: 3;
+            box-shadow: 0 0 10px #ffeb3b,
+                       0 0 20px rgba(255, 235, 59, 0.3);
         }
 
         .wick {
@@ -77,13 +97,14 @@ function createCandle(wish) {
             background: #fff;
             border-radius: 5px;
             margin: 0 auto;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         .wish-text {
             color: #fff;
             font-size: 12px;
             margin-top: 10px;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
             background-color: rgba(0, 0, 0, 0.5);
             padding: 5px;
             border-radius: 5px;
@@ -99,42 +120,14 @@ function createCandle(wish) {
 
         @keyframes flicker {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(0.9); }
+            50% { transform: scale(0.95); opacity: 0.9; }
+        }
+
+        @keyframes glowing {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.5; }
+            50% { transform: translateX(-50%) scale(1.1); opacity: 0.3; }
         }
     `;
 
     document.head.appendChild(styles);
-}
-
-function findSafePosition(container) {
-    const padding = 20;
-    const candleWidth = 150;  // 촛불과 텍스트의 최대 너비
-    const candleHeight = 120; // 촛불과 텍스트의 최대 높이
-    
-    const maxTries = 100;
-    let tries = 0;
-    
-    while (tries < maxTries) {
-        const x = padding + Math.random() * (container.offsetWidth - candleWidth - padding * 2);
-        const y = padding + Math.random() * (container.offsetHeight - candleHeight - padding * 2);
-        
-        if (isPositionSafe(x, y, candleWidth, candleHeight)) {
-            return { x, y };
-        }
-        tries++;
-    }
-    
-    // 안전한 위치를 찾지 못한 경우 격자 방식으로 배치
-    const gridX = (existingCandles.length % 5) * (candleWidth + padding);
-    const gridY = Math.floor(existingCandles.length / 5) * (candleHeight + padding);
-    
-    return { x: gridX + padding, y: gridY + padding };
-}
-
-function isPositionSafe(x, y, width, height) {
-    return existingCandles.every(candle => {
-        const horizontalDistance = Math.abs(x - candle.x);
-        const verticalDistance = Math.abs(y - candle.y);
-        return horizontalDistance > width || verticalDistance > height;
-    });
 }
