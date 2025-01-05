@@ -7,19 +7,11 @@ function findSafePosition(container) {
     const candleWidth = isMobile ? 100 : 150;
     const candleHeight = isMobile ? 130 : 160;
     
-    // 모바일일 경우 세로 방향으로만 배치
-    if (isMobile) {
-        const y = existingCandles.length > 0 
-            ? Math.max(...existingCandles.map(c => c.y)) + candleHeight + padding
-            : padding;
-        return { x: container.offsetWidth / 2 - candleWidth / 2, y };
-    }
-
-    // 데스크톱에서는 랜덤 위치 시도
     const maxTries = 100;
     let tries = 0;
     
     while (tries < maxTries) {
+        // 모바일에서도 랜덤 위치 사용
         const x = padding + Math.random() * (container.offsetWidth - candleWidth - padding * 2);
         const y = padding + Math.random() * (container.offsetHeight - candleHeight - padding * 2);
         
@@ -30,12 +22,13 @@ function findSafePosition(container) {
     }
     
     // 안전한 위치를 찾지 못한 경우 격자 배치
-    const columns = 4;
-    const gridX = (existingCandles.length % columns) * (candleWidth + padding);
+    const columns = isMobile ? 2 : 4;  // 모바일에서는 2열로 배치
+    const gridX = (existingCandles.length % columns) * ((container.offsetWidth - padding * 2) / columns);
     const gridY = Math.floor(existingCandles.length / columns) * (candleHeight + padding);
     
     return { x: gridX + padding, y: gridY + padding };
 }
+
 
 function isPositionSafe(x, y, width, height) {
     return existingCandles.every(candle => {
@@ -200,18 +193,22 @@ function createCandle(wish) {
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
-        .wish-text {
-            color: #fff;
-            font-size: 12px;
-            margin-top: 10px;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 5px;
-            border-radius: 5px;
-            max-width: 150px;
-            word-wrap: break-word;
-            z-index: 2;
-        }
+.wish-text {
+    color: #fff;
+    font-size: 12px;
+    margin-top: 10px;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    border-radius: 5px;
+    min-width: 80px;        /* 최소 너비 설정 */
+    max-width: 150px;
+    word-wrap: break-word;
+    word-break: keep-all;   /* 단어 단위로 줄바꿈 */
+    text-align: center;
+    z-index: 2;
+    display: inline-block;  /* 텍스트 블록화 */
+}
 
         @keyframes float {
             0%, 100% { transform: translateY(0); }

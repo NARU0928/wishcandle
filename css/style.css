@@ -125,34 +125,18 @@ footer {
     }
 
     .candle {
-        position: absolute;
-        transform-origin: center center;
         transform: scale(0.8);
     }
 
     .wish-text {
         font-size: 11px;
+        min-width: 60px;     /* 모바일에서의 최소 너비 */
         max-width: 120px;
         word-break: keep-all;
-    }
-
-    .wish-form {
-        width: 90%;
-        padding: 15px;
-    }
-
-    header h1 {
-        font-size: 2em;
-    }
-
-    header p {
-        font-size: 1em;
-    }
-
-    .clear-candles-btn {
-        bottom: 30px;
+        padding: 4px 8px;
     }
 }
+
 
 /* 더 작은 화면을 위한 추가 조정 */
 @media screen and (max-width: 480px) {
