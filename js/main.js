@@ -85,7 +85,11 @@ async function loadExistingWishes() {
         const result = await response.json();
         
         if (result.success && result.wishes) {
-            result.wishes.forEach(wishData => {
+            // 소원 배열을 무작위로 섞기
+            const shuffledWishes = [...result.wishes].sort(() => Math.random() - 0.5);
+            
+            // 섞인 순서대로 촛불 생성
+            shuffledWishes.forEach(wishData => {
                 if (wishData.wish) {
                     createCandle(wishData.wish);
                 }

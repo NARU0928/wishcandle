@@ -4,39 +4,45 @@ const CANDLE_LIMIT = 15; // 화면당 최대 촛불 수
 // findSafePosition 함수 수정
 function findSafePosition(container) {
     const isMobile = window.innerWidth <= 768;
-    const padding = isMobile ? 30 : 60;  // 패딩 증가
-    const candleWidth = isMobile ? 120 : 200;    // 촛불 영역 너비 증가
-    const candleHeight = isMobile ? 160 : 200;   // 촛불 영역 높이 증가
+    const padding = isMobile ? 30 : 40;  // 여백 조정
+    const candleWidth = isMobile ? 120 : 180;  // 촛불 영역 조정
+    const candleHeight = isMobile ? 150 : 180;
     
-    const maxTries = 100;
+    // 화면 크기에 따른 안전 영역 계산
+    const safeAreaWidth = container.offsetWidth - candleWidth - padding * 2;
+    const safeAreaHeight = container.offsetHeight - candleHeight - padding * 2;
+    
+    const maxTries = 150;  // 시도 횟수 증가
     let tries = 0;
     
+    // 랜덤 위치 시도
     while (tries < maxTries) {
-        const x = padding + Math.random() * (container.offsetWidth - candleWidth - padding * 2);
-        const y = padding + Math.random() * (container.offsetHeight - candleHeight - padding * 2);
+        // 전체 화면 영역에서 랜덤한 위치 선택
+        const x = padding + Math.random() * safeAreaWidth;
+        const y = padding + Math.random() * safeAreaHeight;
         
+        // 다른 촛불들과의 간격 확인
         if (isPositionSafe(x, y, candleWidth, candleHeight)) {
             return { x, y };
         }
         tries++;
     }
     
-    // 안전한 위치를 찾지 못한 경우 격자 배치
-    const columns = isMobile ? 2 : 3;  // 열 수 감소
-    const spacing = isMobile ? candleWidth + padding : candleWidth + padding * 2; // 간격 증가
-    const gridX = (existingCandles.length % columns) * spacing;
-    const gridY = Math.floor(existingCandles.length / columns) * (candleHeight + padding);
+    // 안전한 위치를 찾지 못한 경우 격자형 배치로 fallback
+    const spacing = candleWidth + padding;
+    const gridX = Math.random() * (container.offsetWidth - candleWidth - padding * 2) + padding;
+    const gridY = Math.random() * (container.offsetHeight - candleHeight - padding * 2) + padding;
     
-    return { x: gridX + padding, y: gridY + padding };
+    return { x: gridX, y: gridY };
 }
 
-// isPositionSafe 함수 수정
 function isPositionSafe(x, y, width, height) {
     return existingCandles.every(candle => {
         const horizontalDistance = Math.abs(x - candle.x);
         const verticalDistance = Math.abs(y - candle.y);
-        // 안전 거리를 더 크게 설정
-        return horizontalDistance > width * 1.2 || verticalDistance > height * 1.2;
+        const minDistance = width * 1.2; // 최소 간격을 촛불 크기의 1.2배로 설정
+        
+        return horizontalDistance > minDistance || verticalDistance > minDistance;
     });
 }
 
