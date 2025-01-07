@@ -13,11 +13,14 @@ body {
     flex-direction: column;
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+.candles-container {
+    margin-top: 40px;
+    min-height: 60vh;  /* 최소 높이 설정 */
+    position: relative;
+    width: 100%;
+    overflow: visible;
 }
+
 
 header {
     text-align: center;
@@ -116,7 +119,7 @@ footer {
     }
 
     .candles-container {
-        min-height: 100vh;
+        min-height: 70vh;
         width: 100%;
         position: relative;
         overflow-x: hidden;

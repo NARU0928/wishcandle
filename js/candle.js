@@ -1,25 +1,24 @@
-// 상단의 상수 값 수정
-const CANDLE_LIMIT = 25; // 제한 값 증가
+let existingCandles = [];
+const CANDLE_LIMIT = 25;
 
 function findSafePosition(container) {
     const isMobile = window.innerWidth <= 768;
-    const padding = isMobile ? 30 : 40;  // 패딩 감소
-    const candleWidth = isMobile ? 120 : 160;    // 영역 크기 감소
-    const candleHeight = isMobile ? 160 : 180;   // 영역 크기 감소
-    
-    const safeAreaWidth = container.offsetWidth - candleWidth - padding * 2;
-    const safeAreaHeight = container.offsetHeight - candleHeight - padding * 2;
-    
-    if (safeAreaWidth < 0 || safeAreaHeight < 0) {
-        return getStackPosition(container, candleHeight, padding);
-    }
+    // 화면 크기에 따른 기본값 설정
+    const padding = isMobile ? 20 : 30;
+    const candleWidth = isMobile ? 100 : 120;
+    const candleHeight = isMobile ? 140 : 160;
+
+    // 사용 가능한 영역 계산
+    const safeAreaWidth = container.clientWidth - candleWidth;
+    const safeAreaHeight = Math.max(container.clientHeight, window.innerHeight * 0.6) - candleHeight;
     
     const maxTries = 200;
     let tries = 0;
     
     while (tries < maxTries) {
-        const x = padding + Math.random() * safeAreaWidth;
-        const y = padding + Math.random() * safeAreaHeight;
+        // 전체 영역에서 랜덤 위치 선택
+        const x = Math.random() * (safeAreaWidth - padding * 2) + padding;
+        const y = Math.random() * (safeAreaHeight - padding * 2) + padding;
         
         if (isPositionSafe(x, y, candleWidth, candleHeight)) {
             return { x, y };
@@ -27,24 +26,39 @@ function findSafePosition(container) {
         tries++;
     }
     
-    return getStackPosition(container, candleHeight, padding);
+    // 격자형 배치로 폴백
+    const gridSize = Math.ceil(Math.sqrt(existingCandles.length + 1));
+    const cellWidth = safeAreaWidth / gridSize;
+    const cellHeight = safeAreaHeight / gridSize;
+    
+    const col = existingCandles.length % gridSize;
+    const row = Math.floor(existingCandles.length / gridSize);
+    
+    return {
+        x: col * cellWidth + padding,
+        y: row * cellHeight + padding
+    };
 }
 
 function isPositionSafe(x, y, width, height) {
     return existingCandles.every(candle => {
         const horizontalDistance = Math.abs(x - candle.x);
         const verticalDistance = Math.abs(y - candle.y);
-        const minHorizontalSpace = width * 1.2;    // 간격 감소
-        const minVerticalSpace = height * 1.1;   // 간격 감소
         
+        // 최소 간격 설정
+        const minSpacing = Math.min(width, height) * 1.2;
+        
+        // 대각선 거리 계산
         const diagonalDistance = Math.sqrt(
             Math.pow(horizontalDistance, 2) + 
             Math.pow(verticalDistance, 2)
         );
         
-        return diagonalDistance > Math.max(minHorizontalSpace, minVerticalSpace);  // 승수 제거
+        return diagonalDistance > minSpacing;
     });
 }
+
+
 function createClearButton() {
     if (!document.getElementById('clearCandles')) {
         const button = document.createElement('button');
