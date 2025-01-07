@@ -112,31 +112,27 @@ footer {
 
 /* 모바일 환경을 위한 반응형 스타일 */
 @media screen and (max-width: 768px) {
-    .container {
-        padding: 10px;
-        width: 100%;
-        overflow-x: hidden;
-    }
-
     .candles-container {
-        min-height: 70vh;
+        min-height: 100vh;
         width: 100%;
         position: relative;
         overflow-x: hidden;
         overflow-y: auto;
-        padding-bottom: 100px;
+        padding: 20px 10px 120px 10px; /* 상하 여백 조정 */
     }
 
     .candle {
-        transform: scale(0.8);
+        transform: scale(0.9); /* 크기 약간 증가 */
+        transition: all 0.3s ease; /* 부드러운 애니메이션 */
     }
 
     .wish-text {
-        font-size: 11px;
-        min-width: 60px;     /* 모바일에서의 최소 너비 */
-        max-width: 120px;
+        font-size: 12px;
+        min-width: 80px;
+        max-width: 140px;
         word-break: keep-all;
-        padding: 4px 8px;
+        padding: 6px 10px;
+        background-color: rgba(0, 0, 0, 0.7); /* 배경 더 진하게 */
     }
 }
 

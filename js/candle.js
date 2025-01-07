@@ -3,42 +3,56 @@ const CANDLE_LIMIT = 25;
 
 function findSafePosition(container) {
     const isMobile = window.innerWidth <= 768;
-    // 화면 크기에 따른 기본값 설정
-    const padding = isMobile ? 20 : 30;
-    const candleWidth = isMobile ? 100 : 120;
-    const candleHeight = isMobile ? 140 : 160;
-
-    // 사용 가능한 영역 계산
-    const safeAreaWidth = container.clientWidth - candleWidth;
-    const safeAreaHeight = Math.max(container.clientHeight, window.innerHeight * 0.6) - candleHeight;
     
-    const maxTries = 200;
-    let tries = 0;
-    
-    while (tries < maxTries) {
-        // 전체 영역에서 랜덤 위치 선택
-        const x = Math.random() * (safeAreaWidth - padding * 2) + padding;
-        const y = Math.random() * (safeAreaHeight - padding * 2) + padding;
+    if (isMobile) {
+        // 모바일에서는 세로 방향으로 순차 배치
+        const padding = 30;
+        const candleWidth = 100;  // 모바일에서 촛불 크기
+        const candleHeight = 140;  // 높이 포함 영역
         
-        if (isPositionSafe(x, y, candleWidth, candleHeight)) {
-            return { x, y };
+        // 마지막 촛불의 위치 확인
+        const lastCandle = existingCandles[existingCandles.length - 1];
+        const baseY = lastCandle ? lastCandle.y + candleHeight + padding : padding;
+        
+        // 가로 위치는 화면 폭 내에서 랜덤하게 지정
+        const safeAreaWidth = container.clientWidth - candleWidth - padding * 2;
+        const randomX = padding + Math.random() * safeAreaWidth;
+        
+        return {
+            x: randomX,
+            y: baseY
+        };
+    } else {
+        // 데스크톱 버전은 기존 로직 유지
+        const padding = 30;
+        const candleWidth = 120;
+        const candleHeight = 160;
+        
+        const safeAreaWidth = container.clientWidth - candleWidth - padding * 2;
+        const safeAreaHeight = Math.max(container.clientHeight, window.innerHeight * 0.6) - candleHeight;
+        
+        const maxTries = 200;
+        let tries = 0;
+        
+        while (tries < maxTries) {
+            const x = padding + Math.random() * safeAreaWidth;
+            const y = padding + Math.random() * safeAreaHeight;
+            
+            if (isPositionSafe(x, y, candleWidth, candleHeight)) {
+                return { x, y };
+            }
+            tries++;
         }
-        tries++;
+        
+        // 격자형 배치로 폴백
+        const gridSize = Math.ceil(Math.sqrt(existingCandles.length + 1));
+        return {
+            x: padding + (existingCandles.length % gridSize) * (candleWidth + padding),
+            y: padding + Math.floor(existingCandles.length / gridSize) * (candleHeight + padding)
+        };
     }
-    
-    // 격자형 배치로 폴백
-    const gridSize = Math.ceil(Math.sqrt(existingCandles.length + 1));
-    const cellWidth = safeAreaWidth / gridSize;
-    const cellHeight = safeAreaHeight / gridSize;
-    
-    const col = existingCandles.length % gridSize;
-    const row = Math.floor(existingCandles.length / gridSize);
-    
-    return {
-        x: col * cellWidth + padding,
-        y: row * cellHeight + padding
-    };
 }
+
 
 function isPositionSafe(x, y, width, height) {
     return existingCandles.every(candle => {
@@ -138,11 +152,12 @@ function createCandle(wish) {
         height: candle.offsetHeight
     });
 
-    // 컨테이너 높이 조정 (모바일)
-    if (window.innerWidth <= 768) {
-        const maxY = Math.max(...existingCandles.map(c => c.y + c.height));
-        candlesContainer.style.minHeight = `${maxY + 50}px`;
-    }
+// createCandle 함수 내에서 컨테이너 높이 조정 부분 수정
+if (window.innerWidth <= 768) {
+    // 모바일에서는 컨테이너 높이를 자동으로 증가
+    const maxY = Math.max(...existingCandles.map(c => c.y + c.height));
+    candlesContainer.style.minHeight = `${maxY + 200}px`; // 여유 공간 추가
+}
 
     // CSS 애니메이션 스타일 추가
     const styles = document.createElement('style');
