@@ -78,15 +78,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-// 기존 소원들을 불러오는 함수
 async function loadExistingWishes() {
     try {
         const response = await fetch('/.netlify/functions/getWishes');
         const result = await response.json();
         
         if (result.success && result.wishes) {
-            // 소원 배열을 무작위로 섞기
-            const shuffledWishes = [...result.wishes].sort(() => Math.random() - 0.5);
+            const candlesContainer = document.getElementById('candlesContainer');
+            // 기존 촛불 모두 제거
+            candlesContainer.innerHTML = '';
+            existingCandles = [];
+            
+            // 소원 무작위로 섞기
+            const shuffledWishes = [...result.wishes]
+                .sort(() => Math.random() - 0.5);
             
             // 섞인 순서대로 촛불 생성
             shuffledWishes.forEach(wishData => {
