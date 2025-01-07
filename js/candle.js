@@ -1,21 +1,20 @@
-let existingCandles = [];
-const CANDLE_LIMIT = 15;
+// 상단의 상수 값 수정
+const CANDLE_LIMIT = 25; // 제한 값 증가
 
 function findSafePosition(container) {
     const isMobile = window.innerWidth <= 768;
-    const padding = isMobile ? 60 : 80;  // 패딩 더 크게 증가
-    const candleWidth = isMobile ? 180 : 250;    // 영역 크기 더 크게 증가
-    const candleHeight = isMobile ? 220 : 280;   // 영역 크기 더 크게 증가
+    const padding = isMobile ? 30 : 40;  // 패딩 감소
+    const candleWidth = isMobile ? 120 : 160;    // 영역 크기 감소
+    const candleHeight = isMobile ? 160 : 180;   // 영역 크기 감소
     
     const safeAreaWidth = container.offsetWidth - candleWidth - padding * 2;
     const safeAreaHeight = container.offsetHeight - candleHeight - padding * 2;
     
     if (safeAreaWidth < 0 || safeAreaHeight < 0) {
-        // 화면이 너무 작은 경우 수직 스택으로 배치
         return getStackPosition(container, candleHeight, padding);
     }
     
-    const maxTries = 300;  // 시도 횟수 더 늘림
+    const maxTries = 200;
     let tries = 0;
     
     while (tries < maxTries) {
@@ -28,38 +27,24 @@ function findSafePosition(container) {
         tries++;
     }
     
-    // 안전한 위치를 찾지 못한 경우
     return getStackPosition(container, candleHeight, padding);
-}
-
-function getStackPosition(container, candleHeight, padding) {
-    const lastCandle = existingCandles[existingCandles.length - 1];
-    const y = lastCandle ? lastCandle.y + candleHeight + padding : padding;
-    return {
-        x: container.offsetWidth / 2 - padding,
-        y: y
-    };
 }
 
 function isPositionSafe(x, y, width, height) {
     return existingCandles.every(candle => {
         const horizontalDistance = Math.abs(x - candle.x);
         const verticalDistance = Math.abs(y - candle.y);
-        const minHorizontalSpace = width * 2;    // 가로 간격 더 크게 증가
-        const minVerticalSpace = height * 1.8;   // 세로 간격 더 크게 증가
+        const minHorizontalSpace = width * 1.2;    // 간격 감소
+        const minVerticalSpace = height * 1.1;   // 간격 감소
         
-        // 대각선 거리 체크
         const diagonalDistance = Math.sqrt(
             Math.pow(horizontalDistance, 2) + 
             Math.pow(verticalDistance, 2)
         );
         
-        // 더 엄격한 간격 체크
-        return diagonalDistance > Math.max(minHorizontalSpace, minVerticalSpace) * 1.5;
+        return diagonalDistance > Math.max(minHorizontalSpace, minVerticalSpace);  // 승수 제거
     });
 }
-
-
 function createClearButton() {
     if (!document.getElementById('clearCandles')) {
         const button = document.createElement('button');
