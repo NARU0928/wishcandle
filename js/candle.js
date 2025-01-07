@@ -3,17 +3,21 @@ const CANDLE_LIMIT = 15;
 
 function findSafePosition(container) {
     const isMobile = window.innerWidth <= 768;
-    const padding = isMobile ? 40 : 60;  // 패딩 증가
-    const candleWidth = isMobile ? 150 : 200;    // 영역 크기 증가
-    const candleHeight = isMobile ? 180 : 220;   // 영역 크기 증가
+    const padding = isMobile ? 60 : 80;  // 패딩 더 크게 증가
+    const candleWidth = isMobile ? 180 : 250;    // 영역 크기 더 크게 증가
+    const candleHeight = isMobile ? 220 : 280;   // 영역 크기 더 크게 증가
     
     const safeAreaWidth = container.offsetWidth - candleWidth - padding * 2;
     const safeAreaHeight = container.offsetHeight - candleHeight - padding * 2;
     
-    const maxTries = 200;  // 시도 횟수 늘림
+    if (safeAreaWidth < 0 || safeAreaHeight < 0) {
+        // 화면이 너무 작은 경우 수직 스택으로 배치
+        return getStackPosition(container, candleHeight, padding);
+    }
+    
+    const maxTries = 300;  // 시도 횟수 더 늘림
     let tries = 0;
     
-    // 랜덤 위치 시도
     while (tries < maxTries) {
         const x = padding + Math.random() * safeAreaWidth;
         const y = padding + Math.random() * safeAreaHeight;
@@ -25,18 +29,15 @@ function findSafePosition(container) {
     }
     
     // 안전한 위치를 찾지 못한 경우
-    const gridSize = Math.ceil(Math.sqrt(existingCandles.length + 1));
-    const gridSpacing = Math.min(
-        (container.offsetWidth - padding * 2) / gridSize,
-        (container.offsetHeight - padding * 2) / gridSize
-    );
-    
-    let row = Math.floor(existingCandles.length / gridSize);
-    let col = existingCandles.length % gridSize;
-    
+    return getStackPosition(container, candleHeight, padding);
+}
+
+function getStackPosition(container, candleHeight, padding) {
+    const lastCandle = existingCandles[existingCandles.length - 1];
+    const y = lastCandle ? lastCandle.y + candleHeight + padding : padding;
     return {
-        x: padding + col * gridSpacing,
-        y: padding + row * gridSpacing
+        x: container.offsetWidth / 2 - padding,
+        y: y
     };
 }
 
@@ -44,17 +45,17 @@ function isPositionSafe(x, y, width, height) {
     return existingCandles.every(candle => {
         const horizontalDistance = Math.abs(x - candle.x);
         const verticalDistance = Math.abs(y - candle.y);
-        const minHorizontalSpace = width * 1.5;  // 가로 간격 증가
-        const minVerticalSpace = height * 1.3;   // 세로 간격 증가
+        const minHorizontalSpace = width * 2;    // 가로 간격 더 크게 증가
+        const minVerticalSpace = height * 1.8;   // 세로 간격 더 크게 증가
         
-        // 대각선 거리도 체크
+        // 대각선 거리 체크
         const diagonalDistance = Math.sqrt(
             Math.pow(horizontalDistance, 2) + 
             Math.pow(verticalDistance, 2)
         );
         
-        return (horizontalDistance > minHorizontalSpace && verticalDistance > minVerticalSpace) || 
-               diagonalDistance > Math.max(minHorizontalSpace, minVerticalSpace) * 1.2;
+        // 더 엄격한 간격 체크
+        return diagonalDistance > Math.max(minHorizontalSpace, minVerticalSpace) * 1.5;
     });
 }
 
